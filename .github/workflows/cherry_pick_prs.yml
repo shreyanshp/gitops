@@ -28,10 +28,6 @@ jobs:
         level: 'patch'
         
     - uses: actions/checkout@v2
-    # publish to a branch in current repo using GITHUB_TOKEN and other default settings
-    - uses: oleksiyrudenko/gha-git-credentials@v1
-      with:
-        token: '${{ secrets.GITHUB_TOKEN }}'
     - run: |
         git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" 
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"   
