@@ -33,7 +33,10 @@ jobs:
         token: '${{ secrets.GITHUB_TOKEN }}'
         
     - name: Create branch on remote with the previous tag (if it does not exists)
-      run: 
+      uses: oleksiyrudenko/gha-git-credentials@v2-latest
+      with:
+         token: '${{ secrets.GITHUB_TOKEN }}'
+    - run: 
         git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
           
     - name: Create PR to branch
