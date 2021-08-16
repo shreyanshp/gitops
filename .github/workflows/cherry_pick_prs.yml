@@ -28,7 +28,9 @@ jobs:
         level: 'patch'
     
     - name: setup git user
-      uses: fregante/setup-git-user@v1
+      uses: oleksiyrudenko/gha-git-credentials@v2-latest
+      with:
+        token: '${{ secrets.GITHUB_TOKEN }}'
         
     - name: Create branch on remote with the previous tag (if it does not exists)
       run: 
