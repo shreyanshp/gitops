@@ -1,42 +1,39 @@
-name: Cherry picking trunk PRs to release branch
-
+name: PR for release branch
 on:
   pull_request:
-    branches: [trunk]
+    branches:
+      - deploy
     types: [closed]
-
+    
 jobs:
-  build:
+  release_pull_request:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'cherry pick')
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'cherry pick')
+    name: release_pull_request
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+    - name: checkout
+      uses: actions/checkout@v1
+      
+    - name: Get latest tag
+      uses: actions-ecosystem/action-get-latest-tag@v1
+      id: get-latest-tag
+      if: ${{ steps.release-label.outputs.level != null }}
+      with:
+        semver_only: true
 
-      - name: Run a multi-line script
-        run:
-          git remote update
-          git fetch --all
-          PR_BRANCH="auto-$GITHUB_SHA"
-          MESSAGE=$(git log -1 $GITHUB_SHA | grep "AUTO" | wc -l)
-          echo $MESSAGE
-
-          if [[ $MESSAGE -gt 0 ]]; then
-            echo "Autocommit, NO ACTION"
-            exit 0
-          fi
-
-          PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
-          npm install --save semver
-          INPUT_PR_BRANCH=$(semver -i $(git describe --tags $(git rev-list --tags --max-count=1)))
+    - name: Bump semver
+      uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      if: ${{ steps.release-label.outputs.level != null }}
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ steps.release-label.outputs.level }}    
           
-          git remote update
-          git fetch --all
-          git checkout -b "${PR_BRANCH}" origin/trunk
-          git cherry-pick "${GITHUB_SHA}"
-          git push -u origin "${PR_BRANCH}"
-          hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -a "${GITHUB_ACTOR}" -m "AUTO"
-          
-          
-          
-          
+    - name: Create PR to branch
+      uses: gorillio/github-action-cherry-pick@master
+      with:
+        pr_branch: "Release/${{ steps.bump-semver.outputs.new_version }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITBOT_EMAIL: shreyanshvalentino@gmail.com
+        DRY_RUN: false
