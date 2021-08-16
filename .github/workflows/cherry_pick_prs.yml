@@ -29,8 +29,7 @@ jobs:
         
     - name: Create branch on remote with the previous tag (if it does not exists)
       run: 
-        git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}"
-        git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
           
           
     - name: Create PR to branch
