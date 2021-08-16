@@ -1,0 +1,43 @@
+name: Cherry picking trunk PRs to release branch
+
+on:
+  push:
+    branches: [ trunk ]
+#  pull_request:
+#    branches: [ trunk ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'cherry pick')
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run:
+          git remote update
+          git fetch --all
+          PR_BRANCH="auto-$GITHUB_SHA"
+          MESSAGE=$(git log -1 $GITHUB_SHA | grep "AUTO" | wc -l)
+          echo $MESSAGE
+
+          if [[ $MESSAGE -gt 0 ]]; then
+            echo "Autocommit, NO ACTION"
+            exit 0
+          fi
+
+          PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
+          npm install --save semver
+          INPUT_PR_BRANCH=$(semver -i $(git describe --tags $(git rev-list --tags --max-count=1)))
+          
+          git remote update
+          git fetch --all
+          git checkout -b "${PR_BRANCH}" origin/trunk
+          git cherry-pick "${GITHUB_SHA}"
+          git push -u origin "${PR_BRANCH}"
+          hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -a "${GITHUB_ACTOR}" -m "AUTO"
+          
+          
+          
+          
