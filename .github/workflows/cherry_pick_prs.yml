@@ -33,6 +33,8 @@ jobs:
         if [[ -z "${branchExists}" ]]; then
           git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
+        git config user.name github-actions
+        git config user.email github-actions@github.com
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         git cherry-pick -x "${GITHUB_SHA}"
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
