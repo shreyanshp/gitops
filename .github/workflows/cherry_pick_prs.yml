@@ -13,9 +13,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v1
-
-    - name: setup git user
-      uses: fregante/setup-git-user@v1
       
     - name: Get latest tag
       uses: actions-ecosystem/action-get-latest-tag@v1
@@ -29,6 +26,9 @@ jobs:
       with:
         current_version: ${{ steps.get-latest-tag.outputs.tag }}
         level: 'patch'
+    
+    - name: setup git user
+      uses: fregante/setup-git-user@v1
         
     - name: Create branch on remote with the previous tag (if it does not exists)
       run: 
