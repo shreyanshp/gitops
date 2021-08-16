@@ -35,6 +35,7 @@ jobs:
         fi
         git config user.name github-actions
         git config user.email github-actions@github.com
+        git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}"
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         git cherry-pick -x "${GITHUB_SHA}"
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
