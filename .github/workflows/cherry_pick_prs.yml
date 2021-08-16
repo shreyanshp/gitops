@@ -30,11 +30,9 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         if [ `git branch --list "Release/${{ steps.bump-semver.outputs.new_version }}"` ]; then
-          
+          echo "Release/${{ steps.bump-semver.outputs.new_version }} exists on remote"
         else
-          
-          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"   
-        
+          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
           
     - name: Create PR to branch
