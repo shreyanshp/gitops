@@ -30,8 +30,10 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git fetch --all
+        sleep 1
+        git rev-parse --verify --quiet Release/${{ steps.bump-semver.outputs.new_version }}
         branchExists=$(git rev-parse --verify --quiet Release/${{ steps.bump-semver.outputs.new_version }})
-        if [ -z "$branchExists" ]; then
+        if [[ -z "${branchExists}" ]]; then
           git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
           
