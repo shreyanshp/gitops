@@ -30,7 +30,7 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git fetch --all
-        sleep 1
+        sleep 10
         git rev-parse --verify --quiet Release/${{ steps.bump-semver.outputs.new_version }}
         branchExists=$(git rev-parse --verify --quiet Release/${{ steps.bump-semver.outputs.new_version }})
         if [[ -z "${branchExists}" ]]; then
