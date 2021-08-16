@@ -33,12 +33,8 @@ jobs:
         if [[ -z "${branchExists}" ]]; then
           git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        git cherry-pick -x "${GITHUB_SHA}"
+        git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
           
-    - name: Create PR to branch
-      uses: gorillio/github-action-cherry-pick@master
-      with:
-        pr_branch: "Release/${{ steps.bump-semver.outputs.new_version }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITBOT_EMAIL: shreyanshvalentino@gmail.com
-        DRY_RUN: false
+    
