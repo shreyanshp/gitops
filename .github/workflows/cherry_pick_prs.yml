@@ -13,6 +13,9 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v1
+
+    - name: setup git user
+      uses: fregante/setup-git-user@v1
       
     - name: Get latest tag
       uses: actions-ecosystem/action-get-latest-tag@v1
@@ -29,13 +32,7 @@ jobs:
         
     - name: Create branch on remote with the previous tag (if it does not exists)
       run: 
-        git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}"
-        
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }} 
-        force: true
+        git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u "Release/${{ steps.bump-semver.outputs.new_version }}"
           
     - name: Create PR to branch
       uses: gorillio/github-action-cherry-pick@master
