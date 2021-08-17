@@ -57,6 +57,6 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}"
         commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
-        body: "Cherry Picked ${{ env.LAST_COMMIT_MSG }} #${{ env.PR_NUMBER }}"
+        body: "Cherry Picked ${{ env.LAST_COMMIT_MSG }} (#${{ env.PR_NUMBER }})"
         token: ${{ secrets.GITHUB_TOKEN }}  
     
