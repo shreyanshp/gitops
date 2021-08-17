@@ -48,7 +48,7 @@ jobs:
         sleep 10
         
     -   name: Release drafter
-        uses: release-drafter/release-drafter@v5
+        uses: ExRam/release-drafter@Fix824
         with:
           config-name: release-drafter-patch.yml
           version: "${{ steps.bump-semver.outputs.new_version }}"
