@@ -45,9 +45,8 @@ jobs:
         git cherry-pick -x "${GITHUB_SHA}"
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         git status
-        echo "PR_NUMBER=$(cat $GITHUB_EVENT_PATH | jq -r .number)" >> $GITHUB_ENV
-        echo ${{ env.PR_NUMBER }}
-        echo "LAST_COMMIT_MSG=$(git log -1 --format="%s" $GITHUB_SHA)" >> $GITHUB_ENV
+        CHANGE="$(git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref ${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s")"
+        echo "LAST_COMMIT_MSG=$CHANGE" >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
     - uses: ncipollo/release-action@v1
@@ -57,8 +56,6 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}"
         commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
-        body: "Cherry Picked ${{ env.LAST_COMMIT_MSG }} (#${{ env.PR_NUMBER }})"
-        omitBody: true
-        omitBodyDuringUpdate: true
+        body: "Cherry Picked following ${{ env.LAST_COMMIT_MSG }}"
         token: ${{ secrets.GITHUB_TOKEN }}  
     
