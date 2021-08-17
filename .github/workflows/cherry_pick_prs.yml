@@ -45,17 +45,14 @@ jobs:
         git cherry-pick -x "${GITHUB_SHA}"
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         git status
-        sleep 10
-        
-    -   name: Release drafter
-        uses: ExRam/release-drafter@Fix824
-        with:
-          config-name: release-drafter-patch.yml
-          version: "${{ steps.bump-semver.outputs.new_version }}"
-          tag: "${{ steps.bump-semver.outputs.new_version }}"
-          name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
-          commitish: "Release/${{ steps.bump-semver.outputs.new_version }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
-          
+    
+    - uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        draft: true
+        name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
+        tag: "${{ steps.bump-semver.outputs.new_version }}"
+        commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
+        body: $(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        token: ${{ secrets.GITHUB_TOKEN }}  
     
