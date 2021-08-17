@@ -1,12 +1,12 @@
-name: PR for release branch
+name: Cherry Picking For Patch Version 🍒 
 on:
   pull_request:
     branches:
       - trunk
     types: [closed]
-    
+
 jobs:
-  release_pull_request:
+  cherry_pick_patch_version:
     if: (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'cherry pick'))
     runs-on: ubuntu-latest
     name: release_pull_request
