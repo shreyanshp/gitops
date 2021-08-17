@@ -58,6 +58,7 @@ jobs:
         tag: "${{ steps.bump-semver.outputs.new_version }}"
         commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
         body: "Cherry Picked ${{ env.LAST_COMMIT_MSG }} (#${{ env.PR_NUMBER }})"
+        omitBody: true
         omitBodyDuringUpdate: true
         token: ${{ secrets.GITHUB_TOKEN }}  
     
