@@ -44,15 +44,17 @@ jobs:
         git config user.email github-actions@github.com
         git cherry-pick -x "${GITHUB_SHA}"
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        git status
+        sleep 10
         
     -   name: Release drafter
         uses: release-drafter/release-drafter@v5
         with:
+          config-name: release-drafter-patch.yml
           version: "${{ steps.bump-semver.outputs.new_version }}"
           tag: "${{ steps.bump-semver.outputs.new_version }}"
           name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
           commitish: "Release/${{ steps.bump-semver.outputs.new_version }}"
-          config-name: release-drafter-patch.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
           
