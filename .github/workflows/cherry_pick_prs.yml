@@ -54,7 +54,7 @@ jobs:
           version: "${{ steps.bump-semver.outputs.new_version }}"
           tag: "${{ steps.bump-semver.outputs.new_version }}"
           name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
-          commitish: "refs/heads/Release/${{ steps.bump-semver.outputs.new_version }}"
+          commitish: "Release/${{ steps.bump-semver.outputs.new_version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
           
