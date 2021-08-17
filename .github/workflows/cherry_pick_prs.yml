@@ -32,7 +32,7 @@ jobs:
         cat $GITHUB_EVENT_PATH
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         echo $GITHUB_SHA
-        git fetch all
+        git fetch --all
         git checkout trunk
         branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
         if [[ -z "${branchExists}" ]]; then
