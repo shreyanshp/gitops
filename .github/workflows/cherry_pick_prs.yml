@@ -46,7 +46,7 @@ jobs:
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         git status
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref ${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
