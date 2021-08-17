@@ -32,11 +32,13 @@ jobs:
         cat $GITHUB_EVENT_PATH
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         echo $GITHUB_SHA
+        git fetch all
+        git checkout trunk
         branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
         if [[ -z "${branchExists}" ]]; then
           git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         else
-          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}"
+          git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
         git config user.name github-actions
         git config user.email github-actions@github.com
