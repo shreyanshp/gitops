@@ -1,4 +1,4 @@
-name: Cherry Picking For Patch Version 🍒 
+name: Hot Fix Flow 🔥 - Cherry Picking For Patch Version 🍒 
 on:
   pull_request:
     branches:
@@ -6,10 +6,10 @@ on:
     types: [closed]
 
 jobs:
-  cherry_pick_patch_version:
-    if: (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'cherry pick'))
+  hot_fix_patch_version:
+    if: (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'hot fix'))
     runs-on: ubuntu-latest
-    name: cherry_pick_patch_version
+    name: hot_fix_patch_version
     steps:
     - name: checkout
       uses: actions/checkout@v1
