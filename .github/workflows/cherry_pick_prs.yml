@@ -45,7 +45,7 @@ jobs:
         GITHUB_NUMBER_OF_COMMITS=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits)
         if [[ $GITHUB_NUMBER_OF_COMMITS -ge 2 ]]; then
           GITHUB_COMMITS_URL=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits_url)
-          GITHUB_START_SHA=$(curl $GITHUB_COMMITS_URL | jq -r '.[0].sha')
+          GITHUB_START_SHA=$(curl -H"Accept: application/vnd.github.v3+json" -H"authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $GITHUB_COMMITS_URL | jq -r '.[0].sha')
           git cherry-pick -x ${GITHUB_START_SHA}^..${GITHUB_SHA}
         else
           git cherry-pick -x "${GITHUB_SHA}"
