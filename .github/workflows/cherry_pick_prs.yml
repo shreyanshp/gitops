@@ -42,7 +42,14 @@ jobs:
         fi
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git cherry-pick -x "${GITHUB_SHA}"
+        GITHUB_NUMBER_OF_COMMITS=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits)
+        if [[ $GITHUB_NUMBER_OF_COMMITS -ge 2 ]]; then
+          GITHUB_COMMITS_URL=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits_url)
+          GITHUB_START_SHA=$(curl $GITHUB_COMMITS_URL | jq -r '.[0].sha')
+          git cherry-pick -x ${GITHUB_START_SHA}^..${GITHUB_SHA}
+        else
+          git cherry-pick -x "${GITHUB_SHA}"
+        fi
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         git status
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
