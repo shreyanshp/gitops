@@ -1,4 +1,4 @@
-name: QA Fix Flow 🐛  - Cherry Picking For Production Released Patch Version 🍒 
+name: QA Fix Flow 🐛  - Cherry Picking For Pre Released / QA Released Patch Version 🍒 
 on:
   pull_request:
     branches:
