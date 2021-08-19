@@ -38,9 +38,7 @@ jobs:
         git pull
         git status
         
-        echo $DEF_BRANCH
-        git show-ref $DEF_BRANCH --hash
-        echo $GITHUB_SHA
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$GITHUB_SHA --format="%s"
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
