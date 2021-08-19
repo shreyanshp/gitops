@@ -30,8 +30,6 @@ jobs:
         
     - uses: actions/checkout@v2
     - run: |
-        # Fetch the hash of the merged commit
-        GITHUB_MERGE_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.merge_commit_sha)
         
         # Fetch the default branch
         DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.repo.default_branch)
@@ -41,7 +39,10 @@ jobs:
         
         echo $DEF_BRANCH
         git show-ref $DEF_BRANCH --hash
+        git show-ref $GITHUB_SHA --hash 
         git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref $DEF_BRANCH --hash) --format="%s"
+        
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref $GITHUB_SHA --hash) --format="%s"
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
