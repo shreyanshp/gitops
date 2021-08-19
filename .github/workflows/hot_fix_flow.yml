@@ -12,7 +12,7 @@ jobs:
     name: hot_fix_patch_version
     steps:
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       
     - name: Get latest released tag (without prerelease or draft flag)
       run: |
@@ -29,8 +29,8 @@ jobs:
         current_version: ${{ env.OUTPUT_TAG }}
         level: 'patch'
         
-    - uses: actions/checkout@v2
-    - run: |
+    - name: Automate the flow
+      run: |
         # Fetch the hash of commit from the head of merged branch
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         
@@ -81,6 +81,6 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}"
         commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
-        body: "🍒 Cherry picked the following <br /> ${{ env.LAST_COMMIT_MSG }}"
+        body: "🔥 🍒 Cherry picked the following to release tag ${{ env.OUTPUT_TAG }} <br /> ${{ env.LAST_COMMIT_MSG }}"
         token: ${{ secrets.GITHUB_TOKEN }}  
     
