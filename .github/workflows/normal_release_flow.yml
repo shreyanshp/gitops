@@ -40,11 +40,11 @@ jobs:
         
         echo $DEF_BRANCH
         git show-ref $DEF_BRANCH --hash
-        git show-ref $GITHUB_SHA --hash 
+        echo $GITHUB_SHA
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref $GITHUB_SHA --hash) --format="%s" >> $GITHUB_ENV
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$GITHUB_SHA --format="%s" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
