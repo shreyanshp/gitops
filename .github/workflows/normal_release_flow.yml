@@ -9,7 +9,7 @@ on:
 jobs:
   normal_release_flow:
     runs-on: ubuntu-latest
-    if: (github.event.pull_request.merged == true && (!contains(github.event.pull_request.labels.*.name, 'hot fix') || !contains(github.event.pull_request.labels.*.name, 'hot fix')))
+    if: (github.event.pull_request.merged == true && (!contains(github.event.pull_request.labels.*.name, 'hot fix') || !contains(github.event.pull_request.labels.*.name, 'qa fix')))
     steps:
     
     - name: checkout
@@ -39,11 +39,13 @@ jobs:
         git fetch --all
         git status
         
-        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref ${{ env.DEF_BRANCH }} --hash) --format="%s"
+        echo $DEF_BRANCH
+        git show-ref $DEF_BRANCH --hash
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref $DEF_BRANCH --hash) --format="%s"
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref ${{ env.DEF_BRANCH }} --hash) --format="%s" >> $GITHUB_ENV
+        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref $DEF_BRANCH --hash) --format="%s" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
