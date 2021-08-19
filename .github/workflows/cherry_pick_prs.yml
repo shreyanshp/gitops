@@ -1,4 +1,4 @@
-name: Hot Fix Flow 🔥 - Cherry Picking For Patch Version 🍒 
+name: Hot Fix Flow 🔥 - Cherry Picking For Production Released Patch Version 🍒 
 on:
   pull_request:
     branches:
@@ -17,30 +17,23 @@ jobs:
     - name: Get latest released tag (without prerelease or draft flag)
       run: |
         echo "OUTPUT_TAG=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases" | jq 'map(select(.prerelease == false and .draft == false)) | max_by(.published_at) | .tag_name')" >> $GITHUB_ENV
-      
-    - name: Get latest tag
-      uses: actions-ecosystem/action-get-latest-tag@v1
-      id: get-latest-tag
-      with:
-        semver_only: true
 
     - name: Bump semver
       uses: actions-ecosystem/action-bump-semver@v1
       id: bump-semver
       with:
-        current_version: ${{ steps.get-latest-tag.outputs.tag }}
+        current_version: ${{ env.OUTPUT_TAG }}
         level: 'patch'
         
     - uses: actions/checkout@v2
     - run: |
-        echo ${{ env.OUTPUT_TAG }}
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         echo $GITHUB_SHA
         git fetch --all
         git checkout trunk
         branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
         if [[ -z "${branchExists}" ]]; then
-          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ steps.get-latest-tag.outputs.tag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ env.OUTPUT_TAG }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         else
           git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
         fi
@@ -49,7 +42,7 @@ jobs:
         GITHUB_NUMBER_OF_COMMITS=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits)
         if [[ $GITHUB_NUMBER_OF_COMMITS -ge 2 ]]; then
           GITHUB_COMMITS_URL=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits_url)
-          GITHUB_START_SHA=$(curl -H"Accept: application/vnd.github.v3+json" -H"authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $GITHUB_COMMITS_URL | jq -r '.[0].sha')
+          GITHUB_START_SHA=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $GITHUB_COMMITS_URL | jq -r '.[0].sha')
           git cherry-pick -x ${GITHUB_START_SHA}^..${GITHUB_SHA}
         else
           git cherry-pick -x "${GITHUB_SHA}"
@@ -57,7 +50,7 @@ jobs:
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
         git status
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log $(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
