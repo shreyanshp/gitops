@@ -1,0 +1,86 @@
+name: QA Fix Flow 🐛  - Cherry Picking For Production Released Patch Version 🍒 
+on:
+  pull_request:
+    branches:
+      - trunk
+    types: [closed]
+
+jobs:
+  qa_fix_patch_version:
+    if: (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'qa fix'))
+    runs-on: ubuntu-latest
+    name: qa_fix_patch_version
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      
+    - name: Get latest prereleased tag (without draft flag)
+      run: |
+        # Fetch the latest, max_by published_date, prerelease tag for the repo
+        
+        OUTPUT_TAG=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases" | jq 'map(select(.prerelease == true and .draft == false)) | max_by(.published_at) | .tag_name')
+        OUTPUT_TAG=$(sed -e 's/^"//' -e 's/"$//' <<<"$OUTPUT_TAG")
+        echo "OUTPUT_TAG=$OUTPUT_TAG" >> $GITHUB_ENV
+
+    - name: Bump semver
+      uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      with:
+        current_version: ${{ env.OUTPUT_TAG }}
+        level: 'patch'
+        
+    - name: Automate the flow
+    - run: |
+        # Fetch the hash of commit from the head of merged branch
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        
+        # Fetch the default branch
+        DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.repo.default_branch)
+
+        git fetch --all
+        git checkout $DEF_BRANCH
+
+        # Check if the patch branch exists on the remote
+        branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
+        if [[ -z "${branchExists}" ]]; then
+          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ env.OUTPUT_TAG }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        else
+          git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
+        fi
+        
+        # Set git config for the default token
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        
+        # Check the number of commits in the merged PR
+        GITHUB_NUMBER_OF_COMMITS=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits)
+        
+        # Include all merged commits to be cherry picked
+        if [[ $GITHUB_NUMBER_OF_COMMITS -ge 2 ]]; then
+          GITHUB_COMMITS_URL=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.commits_url)
+          GITHUB_START_SHA=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $GITHUB_COMMITS_URL | jq -r '.[0].sha')
+          git cherry-pick -x ${GITHUB_START_SHA}^..${GITHUB_SHA}
+        else
+          git cherry-pick -x "${GITHUB_SHA}"
+        fi
+        
+        
+        git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        git status
+        
+        # Save changelog from base to the patch branch
+        echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo ${{ env.LAST_COMMIT_MSG }}
+    
+    - uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        draft: true
+        name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
+        tag: "${{ steps.bump-semver.outputs.new_version }}"
+        commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
+        body: "🐛 🍒 Cherry picked the following to pre release tag ${{ env.OUTPUT_TAG }} <br /> ${{ env.LAST_COMMIT_MSG }}"
+        token: ${{ secrets.GITHUB_TOKEN }}  
+    
