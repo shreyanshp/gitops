@@ -9,7 +9,7 @@ on:
 jobs:
   normal_release_flow:
     runs-on: ubuntu-latest
-    if: (github.event.pull_request.merged == true && (!contains(github.event.pull_request.labels.*.name, 'hot fix') || !contains(github.event.pull_request.labels.*.name, 'qa fix')))
+    if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'hot fix') && !contains(github.event.pull_request.labels.*.name, 'qa fix'))
     steps:
     
     - name: checkout
