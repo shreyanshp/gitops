@@ -16,7 +16,7 @@ jobs:
       
     - name: Get latest released tag (without prerelease or draft flag)
       run: |
-        echo 'OUTPUT_TAG=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases" | jq 'map(select(.prerelease == false and .draft == false)) | max_by(.published_at) | .tag_name')' >> $GITHUB_ENV
+        echo "OUTPUT_TAG=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases" | jq 'map(select(.prerelease == false and .draft == false)) | max_by(.published_at) | .tag_name')" >> $GITHUB_ENV
       
     - name: Get latest tag
       uses: actions-ecosystem/action-get-latest-tag@v1
