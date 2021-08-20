@@ -41,12 +41,13 @@ jobs:
         BASE=$(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)
         echo $BASE
         echo $GITHUB_SHA
-        git log ${{ steps.get-latest-tag.outputs.tag }}..$(echo $DEF_BRANCH)
-        # For some reason the abov log only works with trunk and output tag
+        git tag -n
+        git log ${{ steps.get-latest-tag.outputs.tag }}..$GITHUB_SHA
+        # For some reason the above log only works with trunk and output tag
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log ${{ steps.get-latest-tag.outputs.tag }}..$(echo $DEF_BRANCH) >> $GITHUB_ENV
+        git log ${{ steps.get-latest-tag.outputs.tag }}..$GITHUB_SHA >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
