@@ -29,6 +29,8 @@ jobs:
         level: 'minor'
         
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - run: |
         
         # Fetch the default branch
@@ -42,12 +44,13 @@ jobs:
         echo $BASE
         echo $GITHUB_SHA
         git tag -n
-        git log ${{ steps.get-latest-tag.outputs.tag }}..$GITHUB_SHA
+        git --version
+        git log $BASE..$GITHUB_SHA
         # For some reason the above log only works with trunk and output tag
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log ${{ steps.get-latest-tag.outputs.tag }}..$GITHUB_SHA >> $GITHUB_ENV
+        git log $BASE..$GITHUB_SHA >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
