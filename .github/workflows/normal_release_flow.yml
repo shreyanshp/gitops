@@ -46,10 +46,13 @@ jobs:
         BASE=$(git show-ref ${{ env.OUTPUT_TAG }} --hash)
         echo $BASE
         echo $GITHUB_SHA
+        git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit $BASE..$GITHUB_SHA
+        
+        
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit $BASE..$GITHUB_SHA >> $GITHUB_ENV
+        git log --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit $BASE..$GITHUB_SHA >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
