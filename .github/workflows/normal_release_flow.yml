@@ -21,9 +21,9 @@ jobs:
         # Fetch the latest, max_by published_date, release tag for the repo
         git fetch --all
         git pull
-        OUTPUT_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        OUTPUT_TAG=$(git describe --tags --abbrev=0)
         echo "OUTPUT_TAG=$OUTPUT_TAG" >> $GITHUB_ENV
-        OUTPUT_TAG_CUT=$(git describe --tags `git rev-list --tags --max-count=1` | cut -f1 -d"-")
+        OUTPUT_TAG_CUT=$(echo $OUTPUT_TAG | cut -f1 -d"-")
         echo "OUTPUT_TAG_CUT=$OUTPUT_TAG_CUT" >> $GITHUB_ENV
 
     - name: Bump semver
