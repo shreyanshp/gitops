@@ -72,7 +72,7 @@ jobs:
         
         # Save changelog from base to the patch branch
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
-        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --format="%s" >> $GITHUB_ENV
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
     
