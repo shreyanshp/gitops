@@ -55,6 +55,7 @@ jobs:
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
    
+   # To be removed and migrated to new action for beautify project
     - uses: mikepenz/release-changelog-builder-action@v1
       with:
         #configuration: "configuration_complex.json"
