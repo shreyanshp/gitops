@@ -61,8 +61,8 @@ jobs:
         #owner: "mikepenz"
         #repo: "release-changelog-builder-action"
         ignorePreReleases: "false"
-        fromTag: $BASE
-        toTag: $GITHUB_SHA
+        fromTag: ${{ env.BASE }}
+        toTag: ${{ env.GITHUB_SHA }}
         token: ${{ secrets.GITHUB_TOKEN }} 
     
     - uses: ncipollo/release-action@v1
