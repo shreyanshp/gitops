@@ -21,14 +21,16 @@ jobs:
         # Fetch the latest, max_by published_date, release tag for the repo
         git fetch --all
         git pull
-        OUTPUT_TAG=$(git describe --tags --abbrev=0)
+        OUTPUT_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
         echo "OUTPUT_TAG=$OUTPUT_TAG" >> $GITHUB_ENV
+        OUTPUT_TAG_CUT=$(git describe --tags `git rev-list --tags --max-count=1` | cut -f1 -d"-")
+        echo "OUTPUT_TAG_CUT=$OUTPUT_TAG_CUT" >> $GITHUB_ENV
 
     - name: Bump semver
       uses: actions-ecosystem/action-bump-semver@v1
       id: bump-semver
       with:
-        current_version: ${{ env.OUTPUT_TAG }}
+        current_version: ${{ env.OUTPUT_TAG_CUT }}
         level: 'minor'
         
     - name: Automate the flow
