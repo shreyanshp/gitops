@@ -1,4 +1,4 @@
-name: QA Fix Flow 🐛  - Cherry Picking For Pre Released / QA Released Patch Version 🍒 
+name: QA Fix Flow 🐛  - Cherry Picking For Pre Released / QA Released Version 🍒 
 on:
   pull_request:
     branches:
@@ -6,7 +6,7 @@ on:
     types: [closed]
 
 jobs:
-  qa_fix_patch_version:
+  qa_fix_pre_release_version:
     if: (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'qa fix'))
     runs-on: ubuntu-latest
     name: qa_fix_patch_version
