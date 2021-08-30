@@ -23,12 +23,14 @@ jobs:
         OUTPUT_TAG=$(curl -H "Accept: application/vnd.github.v3+json" -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases" | jq 'map(select(.prerelease == false and .draft == false)) | max_by(.published_at) | .tag_name')
         OUTPUT_TAG=$(sed -e 's/^"//' -e 's/"$//' <<<"$OUTPUT_TAG")
         echo "OUTPUT_TAG=$OUTPUT_TAG" >> $GITHUB_ENV
+        OUTPUT_TAG_CUT=$(echo $OUTPUT_TAG | cut -f1 -d"-")
+        echo "OUTPUT_TAG_CUT=$OUTPUT_TAG_CUT" >> $GITHUB_ENV
 
     - name: Bump semver
       uses: actions-ecosystem/action-bump-semver@v1
       id: bump-semver
       with:
-        current_version: ${{ env.OUTPUT_TAG }}
+        current_version: ${{ env.OUTPUT_TAG_CUT }}
         level: 'patch'
         
     - name: Automate the flow
