@@ -41,7 +41,7 @@ jobs:
         git pull
         git status
         
-        BASE=$(git show-ref ${{ steps.get-latest-tag.outputs.tag }} --hash)
+        BASE=$(git show-ref ${{ env.OUTPUT_TAG }} --hash)
         echo $BASE
         echo $GITHUB_SHA
         
