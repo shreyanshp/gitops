@@ -53,8 +53,8 @@ jobs:
       with:
         allowUpdates: true
         draft: true
-        name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
-        tag: "${{ steps.bump-semver.outputs.new_version }}"
+        name: "${{ steps.bump-semver.outputs.new_version }}-rc.1 🌈"
+        tag: "${{ steps.bump-semver.outputs.new_version }}-rc.1"
         commit: "${{ env.DEF_BRANCH }}"
         body: "✈️ The following commits are included in this release <br /> ${{ env.LAST_COMMIT_MSG }}"
         token: ${{ secrets.GITHUB_TOKEN }}     
