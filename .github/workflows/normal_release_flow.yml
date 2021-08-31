@@ -52,18 +52,17 @@ jobs:
         echo "BASE=$BASE" >> $GITHUB_ENV
         echo "CURRENT_HEAD=$CURRENT_HEAD" >> $GITHUB_ENV
         
-        # Save changelog from base release/last release to the recently merged head
+        # Save changelog from base release/last release to the recently merged head - to be deprecated in next change
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
         git log $BASE..$GITHUB_SHA >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
-   
-   # To be removed and migrated to new action for beautify project
-    - uses: mikepenz/release-changelog-builder-action@v1
+        
+    - name: Generate beautiful changelog
+      uses: mikepenz/release-changelog-builder-action@v1
+      id: changelog
       with:
         #configuration: "configuration_complex.json"
-        #owner: "mikepenz"
-        #repo: "release-changelog-builder-action"
         ignorePreReleases: "false"
         fromTag: ${{ env.BASE }}
         toTag: ${{ env.CURRENT_HEAD }}
@@ -76,5 +75,5 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }}-rc.1 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}-rc.1"
         commit: "${{ env.DEF_BRANCH }}"
-        body: "✈️ The following commits are included in this release <br /> ${{ env.LAST_COMMIT_MSG }}"
+        body: ${{ steps.changelog.outputs.changelog }}
         token: ${{ secrets.GITHUB_TOKEN }}     
