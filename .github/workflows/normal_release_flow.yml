@@ -64,7 +64,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        #configuration: "configuration_complex.json"
+        configuration: ".github/changelog_config.json"
         ignorePreReleases: "false"
         fromTag: ${{ env.BASE }}
         toTag: ${{ env.CURRENT_HEAD }}
