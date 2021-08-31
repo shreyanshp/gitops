@@ -44,10 +44,13 @@ jobs:
         git status
         
         BASE=$(git show-ref ${{ env.OUTPUT_TAG }} --hash)
+        CURRENT_HEAD=$(git rev-parse HEAD)
         echo $BASE
         echo $GITHUB_SHA
+        echo $CURRENT_HEAD
         
         echo "BASE=$BASE" >> $GITHUB_ENV
+        echo "CURRENT_HEAD=$CURRENT_HEAD" >> $GITHUB_ENV
         
         # Save changelog from base release/last release to the recently merged head
         echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
@@ -63,7 +66,7 @@ jobs:
         #repo: "release-changelog-builder-action"
         ignorePreReleases: "false"
         fromTag: ${{ env.BASE }}
-        toTag: $GITHUB_SHA
+        toTag: ${{ env.CURRENT_HEAD }}
         token: ${{ secrets.GITHUB_TOKEN }} 
     
     - uses: ncipollo/release-action@v1
