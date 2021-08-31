@@ -63,7 +63,7 @@ jobs:
         #repo: "release-changelog-builder-action"
         ignorePreReleases: "false"
         fromTag: ${{ env.BASE }}
-        toTag: ${{ env.GITHUB_SHA }}
+        toTag: $GITHUB_SHA
         token: ${{ secrets.GITHUB_TOKEN }} 
     
     - uses: ncipollo/release-action@v1
