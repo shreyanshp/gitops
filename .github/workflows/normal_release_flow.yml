@@ -61,6 +61,8 @@ jobs:
     - name: Generate beautiful changelog
       uses: mikepenz/release-changelog-builder-action@v1
       id: changelog
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         #configuration: "configuration_complex.json"
         ignorePreReleases: "false"
