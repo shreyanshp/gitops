@@ -5,17 +5,17 @@
         "labels": ["feature"]
       },
       {
-        "title": "## 🚀 Enhancement",
+        "title": "## 💪 Enhancement",
         "labels": ["enhancement"]
-      },  
+      },
       {
         "title": "## 🐛 Bugs",
         "labels": ["bug"]
       },
       {
-        "title": "## 🐛 Hidden Feature",
+        "title": "## 🥷 Hidden Feature",
         "labels": ["hidden feature"]
-      },  
+      },
       {
         "title": "## 🧪 Chore",
         "labels": ["chore"]
@@ -24,7 +24,7 @@
     "ignore_labels": [
       "ignore"
     ],
-    "sort": "ASC",
+    "sort": "DESC",
     "template": "${{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n${{UNCATEGORIZED}}\n</details>",
     "pr_template": "- ${{TITLE}}\n   - PR: #${{NUMBER}}",
     "empty_template": "- no changes",
@@ -40,11 +40,6 @@
         "method": "match"
       }
     ],
-    "duplicate_filter": {
-      "pattern": "\\[ABC-....\\]",
-      "on_property": "title",
-      "method": "match"
-    },
     "transformers": [
       {
         "pattern": "[\\-\\*] (\\[(...|TEST|CI|SKIP)\\])( )?(.+?)\n(.+?[\\-\\*] )(.+)",
@@ -54,9 +49,6 @@
     "max_tags_to_fetch": 200,
     "max_pull_requests": 200,
     "max_back_track_time_days": 365,
-    "exclude_merge_branches": [
-      "Owner/qa"
-    ],
     "tag_resolver": {
       "method": "semver"
     },
