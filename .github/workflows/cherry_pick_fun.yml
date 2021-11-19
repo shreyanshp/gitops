@@ -1,0 +1,95 @@
+name: Cherry Pick Fun ❤️
+
+on: 
+  workflow_dispatch:
+    inputs:
+      pTag:
+        description: 'Previous Minor Tag on which I will cherry pick the PRs'
+        required: true
+        default: ''
+      lPrs:
+        description: "The list of PRs, example '171,172,170', the order does not matter here, as it will fetch the order from trunk"
+        required: true
+        default: ''
+
+jobs:
+  cherry_pick_fun:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Bump semver
+      uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      with:
+        current_version: ${{ github.event.inputs.pTag }}
+        level: 'patch'
+        
+    - name: Automate the flow ### To do 
+      run: |
+        # debug log
+        set -x
+        
+        # Fetch the default branch
+        DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .repository.default_branch)
+
+        git fetch --all
+        git checkout $DEF_BRANCH
+
+        # Check if the patch branch exists on the remote
+        branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
+        if [[ -z "${branchExists}" ]]; then
+          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ env.OUTPUT_TAG }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        else
+          git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
+        fi
+        
+        # Set git config for the default token
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        
+        
+        git cherry-pick -x "${GITHUB_SHA}"
+        
+        
+        git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        git status
+        
+        # Save changelog from base to the patch branch
+        echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo ${{ env.LAST_COMMIT_MSG }}
+        
+    - name: Generate beautiful changelog
+      uses: mikepenz/release-changelog-builder-action@v1
+      id: changelog
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        configuration: ".github/changelog_config.json"
+        ignorePreReleases: "false"
+        fromTag: ${{ env.BASE }}
+        toTag: ${{ env.CURRENT_HEAD }}
+        token: ${{ secrets.GITHUB_TOKEN }} 
+    
+    - name: Draft Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        draft: true
+        name: "${{ steps.bump-semver.outputs.new_version }}-rc.1 🌈"
+        tag: "${{ steps.bump-semver.outputs.new_version }}-rc.1"
+        commit: "${{ env.DEF_BRANCH }}"
+        body: ${{ steps.changelog.outputs.changelog }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send to slack if 🔥
+      uses: craftech-io/slack-action@v1
+      with:
+        slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        status: failure
+      if: failure()           
