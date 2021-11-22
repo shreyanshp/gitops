@@ -38,6 +38,19 @@ jobs:
 
         git fetch --all
         git checkout $DEF_BRANCH
+        
+        # This creates a pool of commit logs from the tag specified to search for the PRs in
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..
+        
+        # List of commit hash from the tag
+        git rev-list $(git show-ref 7.33.0-rc.1)..
+        
+        # save it in array
+        my_array=( $(git log $(git show-ref 7.33.0-rc.1).. --oneline --reverse)  )
+        
+        my_array_length=${#my_array[@]}  
+        
+        
 
         # Check if the patch branch exists on the remote
         branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
@@ -51,8 +64,8 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         
-        
-        git cherry-pick -x "${GITHUB_SHA}"
+        # if you want to accept incoming changes then you should use theirs key otherwise should use ours
+        git cherry-pick -X theirs  "${GITHUB_SHA}"
         
         
         git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
