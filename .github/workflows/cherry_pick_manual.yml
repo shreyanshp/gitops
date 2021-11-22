@@ -39,6 +39,7 @@ jobs:
         # Fetch all branches and checkout default branch
         git fetch --all
         git checkout $DEF_BRANCH
+        git pull
         
         # Check if the patch branch exists on the remote
         branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
@@ -59,12 +60,15 @@ jobs:
         do
             echo "$i"
             # save it in array
+            git checkout $DEF_BRANCH
             my_array=( $(git log -1 -p ":/#$i" --oneline )  )
             if [ ${#my_array[@]} -eq 0 ]; then
                 echo "array is empty, could not find commithash for PR #$i"
             else
                 echo "Commit hash found for PR #$i"
+                git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
                 git cherry-pick -x "$my_array[1]"
+                git checkout $DEF_BRANCH
             fi
         done
         
