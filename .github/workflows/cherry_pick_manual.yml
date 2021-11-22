@@ -1,0 +1,95 @@
+name: Cherry Pick Manual 🤖
+
+on: 
+  workflow_dispatch:
+    inputs:
+      pTag:
+        description: 'Previous Minor Tag on which I will cherry pick the PRs'
+        required: true
+        default: ''
+      lPrs:
+        description: "The list of PRs, example '171,172,170', the order in which they were merged, does matter here"
+        required: true
+        default: ''
+
+jobs:
+  cherry_pick_manual:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Bump semver
+      uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      with:
+        current_version: ${{ github.event.inputs.pTag }}
+        level: 'patch'
+        
+    - name: Automate the flow
+      run: |
+        # debug log
+        set -x
+        
+        # Fetch the default branch
+        DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .repository.default_branch)
+        
+        # Fetch all branches and checkout default branch
+        git fetch --all
+        git checkout $DEF_BRANCH
+        
+        # Check if the patch branch exists on the remote
+        branchExists=$(git ls-remote origin Release/${{ steps.bump-semver.outputs.new_version }})
+        if [[ -z "${branchExists}" ]]; then
+          git checkout -b "Release/${{ steps.bump-semver.outputs.new_version }}" "${{ github.event.inputs.pTag }}" && git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        else
+          git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
+        fi
+        
+        # Set git config for the default token
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        
+        # loop the input PRs list and find out the commit hash and cherry pick them on the new branch
+        for i in ${${{ github.event.inputs.lPrs }}//,/ }
+        do
+            echo "$i"
+            # save it in array
+            my_array=( $(git log -1 -p ":/#$i" --oneline )  )
+            if [ ${#my_array[@]} -eq 0 ]; then
+                echo "array is empty, could not find commithash for PR #$i"
+            else
+                echo "Commit hash found for PR #$i"
+                git cherry-pick -x "$my_array[1]"
+            fi
+        done
+        
+        git push -u origin "Release/${{ steps.bump-semver.outputs.new_version }}"
+        git status
+        
+        # Save changelog from base to the patch branch
+        echo 'LAST_COMMIT_MSG<<EOF' >> $GITHUB_ENV
+        git log $(git show-ref ${{ github.event.inputs.pTag }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo ${{ env.LAST_COMMIT_MSG }}
+        
+    
+    - name: Draft Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        draft: true
+        name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
+        tag: "${{ steps.bump-semver.outputs.new_version }}"
+        commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
+        body: "🐛 🍒 Cherry picked the following to pre release tag ${{ github.event.inputs.pTag }} <br /> ${{ env.LAST_COMMIT_MSG }}"
+        token: ${{ secrets.GITHUB_TOKEN }}  
+
+    - name: Send to slack if 🔥
+      uses: craftech-io/slack-action@v1
+      with:
+        slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        status: failure
+      if: failure()           
