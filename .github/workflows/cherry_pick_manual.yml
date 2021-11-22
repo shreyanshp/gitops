@@ -67,7 +67,7 @@ jobs:
             else
                 echo "Commit hash found for PR #$i"
                 git checkout "Release/${{ steps.bump-semver.outputs.new_version }}"
-                git cherry-pick -x "$my_array[1]"
+                git cherry-pick -x "$my_array"
                 git checkout $DEF_BRANCH
             fi
         done
