@@ -53,7 +53,9 @@ jobs:
         git config user.email github-actions@github.com
         
         # loop the input PRs list and find out the commit hash and cherry pick them on the new branch
-        for i in ${${{ github.event.inputs.lPrs }}//,/ }
+        listPR=${{ github.event.inputs.lPrs }}
+        echo $listPR
+        for i in ${listPR//,/ }
         do
             echo "$i"
             # save it in array
