@@ -77,6 +77,12 @@ jobs:
         git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
+        
+        # Find out services modified in the release
+        echo 'SERVICES_IMPACTED<<EOF' >> $GITHUB_ENV
+        git log $(git show-ref ${{ env.OUTPUT_TAG }} --hash)..$(git show-ref Release/${{ steps.bump-semver.outputs.new_version }} --hash) --pretty=format: --name-only | grep . | sed -e  's:/.*$::' | sort -u >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo ${{ env.SERVICES_IMPACTED }}
     
     - uses: ncipollo/release-action@v1
       with:
@@ -85,6 +91,6 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }} 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}"
         commit: "Release/${{ steps.bump-semver.outputs.new_version }}"
-        body: "🔥 🍒 Cherry picked the following to release tag ${{ env.OUTPUT_TAG }} <br /> ${{ env.LAST_COMMIT_MSG }}"
+        body: "🔥 🍒 Cherry picked the following to release tag ${{ env.OUTPUT_TAG }} <br /> ${{ env.LAST_COMMIT_MSG }} <br /> Services Impacted are <br /> ${{ env.SERVICES_IMPACTED }}"
         token: ${{ secrets.GITHUB_TOKEN }}  
     
