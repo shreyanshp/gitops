@@ -58,6 +58,12 @@ jobs:
         echo 'EOF' >> $GITHUB_ENV
         echo ${{ env.LAST_COMMIT_MSG }}
         
+        # Find out services modified in the release
+        echo 'SERVICES_IMPACTED<<EOF' >> $GITHUB_ENV
+        git log $BASE..$GITHUB_SHA --pretty=format: --name-only | grep . | sed -e  's:/.*$::' | sort -u >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo ${{ env.SERVICES_IMPACTED }}
+        
     - name: Generate beautiful changelog
       uses: mikepenz/release-changelog-builder-action@v1
       id: changelog
@@ -77,5 +83,5 @@ jobs:
         name: "${{ steps.bump-semver.outputs.new_version }}-rc.1 🌈"
         tag: "${{ steps.bump-semver.outputs.new_version }}-rc.1"
         commit: "${{ env.DEF_BRANCH }}"
-        body: ${{ steps.changelog.outputs.changelog }}
+        body: ${{ steps.changelog.outputs.changelog }} <br /> Services Impacted are <br /> ${{ env.SERVICES_IMPACTED }}
         token: ${{ secrets.GITHUB_TOKEN }}     
