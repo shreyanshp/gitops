@@ -1,0 +1,17 @@
+name: Trigger test-widget job on Bitrise!
+on:
+  label:
+    types: [edited]
+
+jobs:
+  trigger_test_widget:
+    if: contains(github.event.label.name, 'run test widget')
+    runs-on: ubuntu-latest
+    name: trigger_test_widget
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Trigger the test widget job on bitrise
+      run: |
+        cat $GITHUB_EVENT_PATH
