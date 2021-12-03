@@ -17,6 +17,7 @@ jobs:
       run: |
         set +xe
         workflowID="test-widget"
+        echo "workflowID=$workflowID" >> $GITHUB_ENV
         DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.repo.default_branch)
         prNumber=$(cat $GITHUB_EVENT_PATH | jq -r .number)
         branchToBeMerged=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.ref)
@@ -31,4 +32,4 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
-          github.issues.createComment({ issue_number, owner, repo, body: '${{ env.buildURL }}' });
+          github.issues.createComment({ issue_number, owner, repo, body: 'Running ${{ env.workflowID }} - ${{ env.buildURL }}' });
