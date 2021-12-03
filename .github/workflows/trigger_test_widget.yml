@@ -15,4 +15,15 @@ jobs:
         fetch-depth: 0
     - name: Trigger the test widget job on bitrise
       run: |
+        set +xe
+        
         cat $GITHUB_EVENT_PATH
+        
+        workflowID="test-widget"
+        DEF_BRANCH=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.repo.default_branch)
+        prNumber=$(cat $GITHUB_EVENT_PATH | jq -r .number)
+        branchToBeMerged=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.base.ref)
+        branchDestination=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.ref)
+        curl https://app.bitrise.io/app/9ec5d07dd5572592/build/start.json --data "{\"hook_info\":{\"type\":\"bitrise\",\"build_trigger_token\":\"${{ secrets.BITRISE_BUILD_TOKEN }}\"},\"build_params\":{\"workflow_id\":\"$workflowID\",\"commit_hash\":\"15190b010bef832d152bebe9c6c3522f8e7b11c9\", \"branch\":\"$branchToBeMerged\",\"branch_repo_owner\":\"bitcoin-portal\",\"branch_dest\":\"$branchDestination\",\"branch_dest_repo_owner\":\"bitcoin-portal\",\"pull_request_id\":$prNumber,\"pull_request_repository_url\":\"git@github.com:bitcoin-portal/wallet-ios.git\",\"base_repository_url\":\"git@github.com:bitcoin-portal/wallet-ios.git\",\"head_repository_url\":\"git@github.com:bitcoin-portal/wallet-ios.git\",\"pull_request_merge_branch\":\"pull/$prNumber/merge\",\"pull_request_head_branch\":\"pull/$prNumber/head\",\"pull_request_author\":\"automated\",\"diff_url\":\"https://github.com/bitcoin-portal/wallet-ios/pull/$prNumber.diff\",\"commit_paths\":null},\"triggered_by\":\"pr_label\"}"
+
+
