@@ -76,7 +76,7 @@ jobs:
         toTag: ${{ env.CURRENT_HEAD }}
         token: ${{ secrets.GITHUB_TOKEN }} 
     
-    - uses: ncipollo/release-action@v1
+    - uses: ncipollo/release-action@v1.8.10
       with:
         allowUpdates: true
         draft: true
