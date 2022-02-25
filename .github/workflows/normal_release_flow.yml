@@ -84,4 +84,4 @@ jobs:
         tag: "${{ steps.bump-semver.outputs.new_version }}-rc.1"
         commit: "${{ env.DEF_BRANCH }}"
         body: ${{ steps.changelog.outputs.changelog }} <br /> Services Impacted are <br /> ${{ env.SERVICES_IMPACTED }}
-        token: ${{ secrets.GITHUB_TOKEN }}     
+        token: ${{ secrets.BW_PAT }}     
